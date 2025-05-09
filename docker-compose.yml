@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"  # a gauche mon pc, a droite le conteneur, port 8000 de mon pc vers 8000 du conteneur
+    depends_on:
+      - db
+
+  frontend:
+    image: node:18
+    working_dir: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend
+    command: ["npm", "run", "dev"]
+    ports:
+      - "3000:3000"
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: transcendence
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
