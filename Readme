@@ -10,6 +10,13 @@ docker ps -a
 
 
 
+Suppr volum casse :
+
+docker compose down --volumes
+docker volume rm transcend_node_modules
+
+
+
 
 FROM node:22-alpine    =====>  take the image from docker hub   /  the local cache of the container
 
