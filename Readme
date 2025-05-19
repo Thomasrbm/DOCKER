@@ -1,3 +1,118 @@
 
 docker build -t transcendance-dev .
 docker run --rm -p 3000:3000 transcendance-dev
+
+
+FROM node:22-alpine    =====>  take the image from docker hub   /  the local cache of the container
+
+
+
+RUN : exécute une commande dans le conteneur pendant l’étape de construction.
+
+
+npm install -g : installe un paquet globalement (disponible partout dans le conteneur).
+npm@latest : la toute dernière version de npm.
+
+
+
+
+RUN corepack enable \
+    && corepack prepare pnpm@latest-10 --activate
+
+
+Corepack intégré dans Node.js : gère les gestionnaires de paquets (pnpm, Yarn, etc.).
+corepack enable : active Corepack dans l’environnement du conteneur.
+corepack prepare pnpm@latest-10 --activate : télécharge et rend disponible la commande pnpm en version 10 (dernier 10.x).
+
+
+Résultat : à l’intérieur du conteneur, la commande pnpm existe et pointe vers la v10.11.0.
+
+
+
+RUN npm install -g prisma@latest
+
+
+ Définir le dossier de travail
+
+WORKDIR /app
+WORKDIR : change le répertoire courant où seront exécutées toutes les prochaines commandes (RUN, COPY, CMD, etc.).
+
+On fixe /app ; c’est là que tout le code et  modules seront stockés.
+
+
+
+
+
+Indique à Corepack quel packageManager utiliser
+
+RUN npm pkg set packageManager="pnpm@10.11.0"
+Modifie votre package.json dans le conteneur pour y ajouter un champ packageManager.
+
+Cela évite à Corepack de vous demander de le faire la première fois que vous lancez un script (pnpm run ...).
+
+
+
+
+
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+
+Copie seulement ces deux fichiers (les « manifestes » de vos dépendances) dans /app.
+
+Avantage : si vous ne changez pas vos dépendances, Docker utilise le cache et ne réinstalle pas tout à chaque build.
+
+pnpm install --frozen-lockfile
+
+Installe exactement ce qui est indiqué dans pnpm-lock.yaml, sans essayer de le modifier.
+
+Si votre package.json et votre pnpm-lock.yaml ne sont pas cohérents, la commande échoue.
+
+Ceci garantit que vos versions de paquets sont toujours verrouillées et reproductibles.
+
+
+
+
+
+
+
+COPY . .
+Copie tous les fichiers restants (votre code source, fichiers de config, etc.) depuis votre machine vers /app dans le conteneur.
+
+À ce stade, tout votre projet est disponible dans /app.
+
+
+
+
+
+
+
+Déclare le port d’écoute
+
+
+EXPOSE 3000
+Informe Docker (et l’utilisateur du Dockerfile) que l’application écoute sur le port 3000.
+
+Ce n’ouvre pas automatiquement le port, mais c’est une bonne documentation.
+
+
+
+
+
+
+CMD ["pnpm", "run", "dev"]
+
+
+Lance la commande 
+
+
+
+
+
+
+
+
+
+Ca install dans un container sans affecter le pc hote. 
+et donc le truc de tout copier dans APP cest pas dans mon pc mais dans le container actuellemen run.
