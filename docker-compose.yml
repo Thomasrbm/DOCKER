@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: .
+    container_name: transcendance-back
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    command: ["pnpm", "run", "dev:server"]
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+
+
+
+  frontend:
+    build:
+      context: .
+    container_name: transcendance-front
+    command: ["pnpm", "run", "dev"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+
+volumes:
+  node_modules:
